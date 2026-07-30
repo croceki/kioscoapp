@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chino App — Sistema de Ventas CABA</title>
+  <meta name="description" content="Sistema de punto de venta para kiosco en CABA. Gestión de productos, ventas y reportes.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loading-overlay" class="loading-overlay">
+  <div class="loading-logo">🏪</div>
+  <div class="loading-text">Chino App</div>
+  <div class="loading-sub">Sistema de Ventas — CABA</div>
+  <div class="loading-progress"><div class="loading-bar"></div></div>
+</div>
+
+<!-- PRINT TICKET (hidden) -->
+<div id="print-ticket"></div>
+
+<!-- APP LAYOUT -->
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-logo" onclick="navigate('dashboard')" title="Chino App">🏬</div>
+
+    <button class="nav-btn active" id="nav-dashboard" onclick="navigate('dashboard')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Menú</span>
+    </button>
+    <button class="nav-btn" id="nav-products" onclick="navigate('products')">
+      <span class="nav-icon">📦</span>
+      <span class="nav-label">Stock</span>
+    </button>
+    <button class="nav-btn" id="nav-pos" onclick="navigate('pos')">
+      <span class="nav-icon">🛒</span>
+      <span class="nav-label">Vender</span>
+    </button>
+    <button class="nav-btn" id="nav-reports" onclick="navigate('reports')">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Reportes</span>
+    </button>
+
+    <div class="sidebar-spacer"></div>
+
+    <button class="nav-btn" id="nav-manual" onclick="navigate('manual')">
+      <span class="nav-icon">📖</span>
+      <span class="nav-label">Ayuda</span>
+    </button>
+  </nav>
+
+  <!-- MAIN AREA -->
+  <div class="main-area">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div id="header-title" class="header-title">🏠 Menú</div>
+        <span class="header-badge">CABA</span>
+      </div>
+
+      <div style="flex:1;text-align:center">
+        <span class="header-app-title">Chino App</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Cambiar a fondo blanco / modo oscuro">
+          <span id="theme-icon">☀️</span>
+          <span id="theme-label">Fondo Blanco</span>
+        </button>
+        <button class="lang-btn" id="lang-btn" onclick="toggleChinese()" title="Traducir al chino / 切换到中文">
+          <span class="flag">🇨🇳</span>
+          <span id="lang-label">中文</span>
+        </button>
+        <div style="text-align:right">
+          <div class="header-clock" id="clock">--:--:--</div>
+          <div class="header-date" id="date-display">--</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT SECTIONS -->
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <section id="section-dashboard" class="section active">
+        <div id="dashboard-content"></div>
+      </section>
+
+      <!-- PRODUCTS -->
+      <section id="section-products" class="section">
+        <div id="products-content"></div>
+      </section>
+
+      <!-- POS -->
+      <section id="section-pos" class="section">
+        <div id="pos-content"></div>
+      </section>
+
+      <!-- REPORTS -->
+      <section id="section-reports" class="section">
+        <div id="reports-content"></div>
+      </section>
+
+      <!-- MANUAL -->
+      <section id="section-manual" class="section">
+        <div id="manual-content"></div>
+      </section>
+
+    </div><!-- /content -->
+  </div><!-- /main-area -->
+</div><!-- /app-layout -->
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- PRODUCT MODAL (Add / Edit) -->
+<div class="modal-overlay" id="product-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="product-modal-title">Agregar Producto</h2>
+      <button class="modal-close" onclick="closeProductModal()">✕</button>
+    </div>
+    <div id="product-modal-body"></div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="delete-modal-overlay">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h2 class="modal-title">🗑️ Eliminar producto</h2>
+      <button class="modal-close" onclick="closeDeleteModal()">✕</button>
+    </div>
+    <div style="text-align:center;padding:16px 0">
+      <div style="font-size:52px;margin-bottom:14px">⚠️</div>
+      <p style="font-size:14px;color:var(--text-secondary);line-height:1.6">
+        ¿Estás seguro que querés eliminar<br>
+        <strong id="delete-product-name" style="color:var(--text-primary)">este producto</strong>?
+      </p>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:8px">Esta acción no se puede deshacer.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancelar</button>
+      <button class="btn btn-danger" onclick="executeDeleteProduct()">🗑️ Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="payment-modal-overlay">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <h2 class="modal-title">💳 Cobrar venta</h2>
+      <button class="modal-close" onclick="closePaymentModal()">✕</button>
+    </div>
+    <div id="payment-modal-body"></div>
+  </div>
+</div>
+
+<!-- SALE COMPLETE MODAL -->
+<div class="modal-overlay" id="sale-complete-modal-overlay">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header" style="border:none;margin-bottom:0">
+      <div></div>
+      <button class="modal-close" onclick="closeSaleComplete()">✕</button>
+    </div>
+    <div id="sale-complete-body"></div>
+  </div>
+</div>
+
+<!-- AI CHAT ASSISTANT MODAL -->
+<div class="modal-overlay" id="ai-chat-modal-overlay">
+  <div class="modal" style="max-width:560px;height:620px;display:flex;flex-direction:column">
+    <div class="modal-header" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:26px;background:linear-gradient(135deg,var(--purple),var(--cyan));width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center">🤖</div>
+        <div>
+          <h2 class="modal-title" style="font-size:16px">Asistente Virtual IA — KioscoApp</h2>
+          <div style="font-size:11px;color:var(--green);display:flex;align-items:center;gap:5px">
+            <span style="width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block"></span> En línea · Respuestas automáticas inteligentes
+          </div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeAiChatModal()">✕</button>
+    </div>
+
+    <!-- CHAT MESSAGES CONTAINER -->
+    <div id="ai-chat-messages" style="flex:1;overflow-y:auto;padding:12px;background:rgba(0,0,0,0.15);border:1px solid var(--border);border-radius:var(--radius-md);display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
+    </div>
+
+    <!-- QUICK PROMPTS -->
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px">
+      <button class="btn btn-secondary btn-sm" style="font-size:11px;white-space:nowrap" onclick="sendQuickAiPrompt('¿Cómo registro una venta?')">💡 ¿Cómo vendo?</button>
+      <button class="btn btn-secondary btn-sm" style="font-size:11px;white-space:nowrap" onclick="sendQuickAiPrompt('¿Cómo calculo las ganancias?')">📊 ¿Ver ganancias?</button>
+      <button class="btn btn-secondary btn-sm" style="font-size:11px;white-space:nowrap" onclick="sendQuickAiPrompt('Quiero hablar con el creador del sistema')">✉️ Hablar con Creador</button>
+    </div>
+
+    <!-- CHAT INPUT -->
+    <div style="display:flex;gap:8px">
+      <input type="text" id="ai-chat-input" class="form-input" placeholder="Escribí tu consulta sobre el kiosco o el sistema…" onkeydown="if(event.key==='Enter') sendAiMessage()">
+      <button class="btn btn-primary" onclick="sendAiMessage()" style="padding:0 18px">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT CREATOR MODAL -->
+<div class="modal-overlay" id="contact-creator-modal-overlay">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:26px">👨‍💻</div>
+        <div>
+          <h2 class="modal-title" style="font-size:16px">Contactar al Creador</h2>
+          <div style="font-size:11px;color:var(--text-muted)">Soporte técnico y personalizaciones para tu kiosco</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeContactCreatorModal()">✕</button>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;padding:8px 0">
+      <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.25);border-radius:var(--radius-md);padding:14px">
+        <div style="font-weight:700;font-size:13px;color:var(--purple-light);margin-bottom:4px">Desarrollado por Antigravity Systems</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.6">
+          ¿Necesitás agregar una función especial, lector de código de barras físico, factura electrónica AFIP/ARCA o soporte presencial en CABA?
+        </div>
+        <div style="font-size:13px;font-weight:800;color:var(--cyan);margin-top:8px">
+          📞 Tel / WhatsApp: +54 9 11 3262-3242
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <a href="https://wa.me/5491132623242?text=Hola,%20tengo%20un%20problema%20en%20Chino%20App" target="_blank" class="btn btn-success" style="justify-content:center;text-decoration:none;font-weight:700">
+          📱 WhatsApp Directo
+        </a>
+        <a href="mailto:soporte@chinoapp.com.ar?subject=Consulta%20KioscoApp" class="btn btn-primary" style="justify-content:center;text-decoration:none;font-weight:700">
+          ✉️ Enviar Email
+        </a>
+      </div>
+
+      <div style="border-top:1px solid var(--border);padding-top:12px">
+        <div class="form-label" style="margin-bottom:6px">O dejalos tu mensaje directo desde acá:</div>
+        <div class="form-group" style="margin-bottom:8px">
+          <input type="text" id="contact-name" class="form-input" placeholder="Tu nombre / Nombre del Kiosco">
+        </div>
+        <div class="form-group" style="margin-bottom:8px">
+          <textarea id="contact-msg" class="form-input" style="height:70px;resize:none" placeholder="Escribí tu consulta o sugerencia..."></textarea>
+        </div>
+        <button class="btn btn-primary" style="width:100%" onclick="sendDirectMessageToCreator()">🚀 Enviar mensaje directo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
