@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chino App — Sistema de Ventas CABA</title>
-  <meta name="description" content="Sistema de punto de venta para kiosco en CABA. Gestión de productos, ventas y reportes.">
+  <meta name="description" content="Sistema de punto de venta para kiosco en CABA. Gestión de productos, ventas, proveedores, control de caja y reportes.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1709,6 +1709,208 @@ body.light-mode ::-webkit-scrollbar-thumb {
   box-shadow: 0 3px 12px rgba(99, 102, 241, 0.3);
 }
 /* ============================================
+   SUPPLIERS & CASH RESERVE ALERTS
+   ============================================ */
+.supplier-alert-banner {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(217, 119, 6, 0.08) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: var(--radius-lg);
+  padding: 18px 22px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15);
+  animation: pulseAmber 3s infinite ease-in-out;
+}
+@keyframes pulseAmber {
+  0%, 100% { box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); }
+  50% { box-shadow: 0 6px 28px rgba(245, 158, 11, 0.3); border-color: rgba(245, 158, 11, 0.7); }
+}
+.supplier-today-banner {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.16) 0%, rgba(6, 182, 212, 0.08) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: var(--radius-lg);
+  padding: 18px 22px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
+}
+.week-schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.day-schedule-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.day-schedule-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+}
+.day-schedule-card.is-today {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.08));
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+}
+.day-schedule-card.is-tomorrow {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.08));
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
+}
+.day-name-badge {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.day-schedule-card.is-today .day-name-badge { color: var(--green-light); }
+.day-schedule-card.is-tomorrow .day-name-badge { color: var(--amber-light); }
+.btn-whatsapp {
+  background: #25D366;
+  color: #FFFFFF;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+}
+.btn-whatsapp:hover {
+  background: #20BA56;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);
+}
+body.light-mode .supplier-alert-banner {
+  background: #FFFBEB;
+  border-color: #FCD34D;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.1);
+}
+body.light-mode .supplier-today-banner {
+  background: #ECFDF5;
+  border-color: #A7F3D0;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.1);
+}
+body.light-mode .day-schedule-card {
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+}
+body.light-mode .day-schedule-card.is-today {
+  background: #F0FDF4;
+  border-color: #86EFAC;
+}
+body.light-mode .day-schedule-card.is-tomorrow {
+  background: #FFFBEB;
+  border-color: #FDE68A;
+}
+/* ============================================
+   CASH REGISTER & SHIFT MANAGEMENT
+   ============================================ */
+.shift-card {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(6, 182, 212, 0.06) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+.shift-card-closed {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  margin-bottom: 22px;
+  text-align: center;
+}
+.cash-balance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+.cash-balance-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cash-balance-box .cb-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.cash-balance-box .cb-amount {
+  font-size: 24px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+.cash-summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0;
+  font-size: 13px;
+}
+.cash-summary-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 10.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
+.cash-summary-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+}
+.cash-summary-table tr.highlight-row {
+  background: rgba(99, 102, 241, 0.08);
+  font-weight: 700;
+}
+.cash-summary-table tr.highlight-row td {
+  border-top: 1px solid rgba(99, 102, 241, 0.3);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+}
+body.light-mode .shift-card {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+body.light-mode .cash-balance-box {
+  background: #F8FAFC;
+  border-color: #E2E8F0;
+}
+body.light-mode .cash-summary-table th {
+  background: #F1F5F9;
+  color: #475569;
+}
+body.light-mode .cash-summary-table tr.highlight-row {
+  background: #EEF2FF;
+}
+/* ============================================
    RESPONSIVE DESIGN
    ============================================ */
 @media (max-width: 1200px) {
@@ -1745,7 +1947,7 @@ body.light-mode ::-webkit-scrollbar-thumb {
     flex-wrap: wrap;
   }
 }
-</style>
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -1771,6 +1973,14 @@ body.light-mode ::-webkit-scrollbar-thumb {
       <span class="nav-icon">📦</span>
       <span class="nav-label">Stock</span>
     </button>
+    <button class="nav-btn" id="nav-suppliers" onclick="navigate('suppliers')">
+      <span class="nav-icon">🚚</span>
+      <span class="nav-label">Proveedores</span>
+    </button>
+    <button class="nav-btn" id="nav-cash" onclick="navigate('cash')">
+      <span class="nav-icon">💰</span>
+      <span class="nav-label">Caja</span>
+    </button>
     <button class="nav-btn" id="nav-pos" onclick="navigate('pos')">
       <span class="nav-icon">🛒</span>
       <span class="nav-label">Vender</span>
@@ -1792,12 +2002,13 @@ body.light-mode ::-webkit-scrollbar-thumb {
       <div class="header-left">
         <div id="header-title" class="header-title">🏠 Menú</div>
         <span class="header-badge">CABA</span>
+        <span id="header-cash-badge" class="badge badge-red" onclick="navigate('cash')" style="cursor:pointer;padding:4px 10px;font-size:11px">🔴 Caja Cerrada</span>
       </div>
       <div class="header-center">
         <span class="header-app-title">Chino App</span>
       </div>
       <div class="header-actions">
-        <button class="btn btn-secondary btn-sm" onclick="exportData()" title="Descargar respaldo .json con productos y ventas">
+        <button class="btn btn-secondary btn-sm" onclick="exportData()" title="Descargar respaldo .json con productos, proveedores, caja y ventas">
           📤 Exportar datos
         </button>
         <button class="btn btn-secondary btn-sm" onclick="importData()" title="Restaurar información desde archivo .json">
@@ -1826,6 +2037,14 @@ body.light-mode ::-webkit-scrollbar-thumb {
       <!-- PRODUCTS -->
       <section id="section-products" class="section">
         <div id="products-content"></div>
+      </section>
+      <!-- SUPPLIERS -->
+      <section id="section-suppliers" class="section">
+        <div id="suppliers-content"></div>
+      </section>
+      <!-- CASH REGISTER -->
+      <section id="section-cash" class="section">
+        <div id="cash-content"></div>
       </section>
       <!-- POS -->
       <section id="section-pos" class="section">
@@ -1876,6 +2095,87 @@ body.light-mode ::-webkit-scrollbar-thumb {
     </div>
   </div>
 </div>
+<!-- SUPPLIER MODAL (Add / Edit) -->
+<div class="modal-overlay" id="supplier-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="supplier-modal-title">Agregar Proveedor</h2>
+      <button class="modal-close" onclick="closeSupplierModal()">✕</button>
+    </div>
+    <div id="supplier-modal-body"></div>
+  </div>
+</div>
+<!-- DELETE SUPPLIER MODAL -->
+<div class="modal-overlay" id="delete-supplier-modal-overlay">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h2 class="modal-title">🗑️ Eliminar proveedor</h2>
+      <button class="modal-close" onclick="closeDeleteSupplierModal()">✕</button>
+    </div>
+    <div style="text-align:center;padding:16px 0">
+      <div style="font-size:52px;margin-bottom:14px">⚠️</div>
+      <p style="font-size:14px;color:var(--text-secondary);line-height:1.6">
+        ¿Estás seguro que querés eliminar a<br>
+        <strong id="delete-supplier-name" style="color:var(--text-primary)">este proveedor</strong>?
+      </p>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:8px">Esta acción no se puede deshacer.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeDeleteSupplierModal()">Cancelar</button>
+      <button class="btn btn-danger" onclick="executeDeleteSupplier()">🗑️ Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+<!-- SUPPLIER PAYMENT MODAL -->
+<div class="modal-overlay" id="supplier-payment-modal-overlay">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <h2 class="modal-title">💵 Registrar Pago a Proveedor</h2>
+      <button class="modal-close" onclick="closeSupplierPaymentModal()">✕</button>
+    </div>
+    <div id="supplier-payment-modal-body"></div>
+  </div>
+</div>
+<!-- OPEN SHIFT MODAL -->
+<div class="modal-overlay" id="open-shift-modal-overlay">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <h2 class="modal-title">🟢 Apertura de Turno de Caja</h2>
+      <button class="modal-close" onclick="closeOpenShiftModal()">✕</button>
+    </div>
+    <div id="open-shift-modal-body"></div>
+  </div>
+</div>
+<!-- CLOSE SHIFT MODAL -->
+<div class="modal-overlay" id="close-shift-modal-overlay">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <h2 class="modal-title">🔒 Cierre y Arqueo de Turno</h2>
+      <button class="modal-close" onclick="closeCloseShiftModal()">✕</button>
+    </div>
+    <div id="close-shift-modal-body"></div>
+  </div>
+</div>
+<!-- CASH MOVEMENT MODAL -->
+<div class="modal-overlay" id="cash-movement-modal-overlay">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <h2 class="modal-title">💵 Movimiento de Caja</h2>
+      <button class="modal-close" onclick="closeCashMovementModal()">✕</button>
+    </div>
+    <div id="cash-movement-modal-body"></div>
+  </div>
+</div>
+<!-- SHIFT RECEIPT MODAL -->
+<div class="modal-overlay" id="shift-receipt-modal-overlay">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h2 class="modal-title">🧾 Comprobante de Arqueo</h2>
+      <button class="modal-close" onclick="closeShiftReceiptModal()">✕</button>
+    </div>
+    <div id="shift-receipt-modal-body"></div>
+  </div>
+</div>
 <!-- PAYMENT MODAL -->
 <div class="modal-overlay" id="payment-modal-overlay">
   <div class="modal" style="max-width:480px">
@@ -1903,9 +2203,9 @@ body.light-mode ::-webkit-scrollbar-thumb {
       <div style="display:flex;align-items:center;gap:10px">
         <div style="font-size:26px;background:linear-gradient(135deg,var(--purple),var(--cyan));width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center">🤖</div>
         <div>
-          <h2 class="modal-title" style="font-size:16px">Fichita — Asistente IA</h2>
+          <h2 class="modal-title" style="font-size:16px">Asistente Virtual IA — KioscoApp</h2>
           <div style="font-size:11px;color:var(--green);display:flex;align-items:center;gap:5px">
-            <span style="width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block"></span> En línea · Powered by Gemini
+            <span style="width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block"></span> En línea · Respuestas automáticas inteligentes
           </div>
         </div>
       </div>
@@ -1917,8 +2217,8 @@ body.light-mode ::-webkit-scrollbar-thumb {
     <!-- QUICK PROMPTS -->
     <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px">
       <button class="btn btn-secondary btn-sm" style="font-size:11px;white-space:nowrap" onclick="sendQuickAiPrompt('¿Cómo registro una venta?')">💡 ¿Cómo vendo?</button>
-      <button class="btn btn-secondary btn-sm" style="font-size:11px;white-space:nowrap" onclick="sendQuickAiPrompt('¿Cómo calculo las ganancias?')">📊 ¿Ver ganancias?</button>
-      <button class="btn btn-secondary btn-sm" style="font-size:11px;white-space:nowrap" onclick="sendQuickAiPrompt('Quiero hablar con el creador del sistema')">✉️ Hablar con Creador</button>
+      <button class="btn btn-secondary btn-sm" style="font-size:11px;white-space:nowrap" onclick="sendQuickAiPrompt('¿Cómo hago el arqueo de caja?')">💰 Arqueo de Caja</button>
+      <button class="btn btn-secondary btn-sm" style="font-size:11px;white-space:nowrap" onclick="sendQuickAiPrompt('¿A qué proveedores hay que comprarles esta semana?')">🚚 Proveedores semana</button>
     </div>
     <!-- CHAT INPUT -->
     <div style="display:flex;gap:8px">
@@ -1941,7 +2241,7 @@ body.light-mode ::-webkit-scrollbar-thumb {
       <button class="modal-close" onclick="closeContactCreatorModal()">✕</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:14px;padding:8px 0">
-      <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.25);border-radius:var(--radius-md);padding:14px">
+      <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);border-radius:var(--radius-md);padding:14px">
         <div style="font-weight:700;font-size:13px;color:var(--purple-light);margin-bottom:4px">Desarrollado por Antigravity Systems</div>
         <div style="font-size:12px;color:var(--text-secondary);line-height:1.6">
           ¿Necesitás agregar una función especial, lector de código de barras físico, factura electrónica AFIP/ARCA o soporte presencial en CABA?
@@ -1951,7 +2251,7 @@ body.light-mode ::-webkit-scrollbar-thumb {
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <a href="https://wa.me/5491132623242?text=Hola,%20tengo%20un%20problema%20en%20Chino%20App" target="_blank" class="btn btn-success" style="justify-content:center;text-decoration:none;font-weight:700">
+        <a href="https://wa.me/5491132623242?text=Hola,%20tengo%20un%20problema%20en%20Chino%20App" target="_blank" class="btn btn-whatsapp" style="justify-content:center;text-decoration:none;font-weight:700">
           📱 WhatsApp Directo
         </a>
         <a href="mailto:soporte@chinoapp.com.ar?subject=Consulta%20KioscoApp" class="btn btn-primary" style="justify-content:center;text-decoration:none;font-weight:700">
@@ -1993,6 +2293,241 @@ const PAYMENT_METHODS = [
 ];
 const PM_LABELS = { efectivo:'Efectivo', debito:'Débito', credito:'Crédito', mercadopago:'MercadoPago' };
 // === PRODUCTOS DEMO ===
+// === PROVEEDORES DEMO (Días 1 a 6: Lunes a Sábado) ===
+const DEMO_SUPPLIERS = [
+  {
+    id: 'prov_1',
+    name: 'Distribuidora Arcor',
+    category: 'Golosinas & Chocolates',
+    contact: 'Carlos Gómez (Preventista)',
+    phone: '+54 9 11 4567-8901',
+    visitDay: 1,
+    visitDayName: 'Lunes',
+    estimatedAmount: 45000,
+    frequency: 'Semanal (Lunes)',
+    paymentType: 'Efectivo contra entrega',
+    notes: 'Pasa de 9:00 a 11:00 hs. Dejar dinero en sobre en la caja.',
+    emoji: '🍬',
+    status: 'active',
+    lastPaymentDate: null
+  },
+  {
+    id: 'prov_2',
+    name: 'Coca-Cola FEMSA',
+    category: 'Gaseosas, Aguas & Jugos',
+    contact: 'Mariana López (Ventas)',
+    phone: '+54 9 11 5678-1234',
+    visitDay: 2,
+    visitDayName: 'Martes',
+    estimatedAmount: 85000,
+    frequency: 'Semanal (Martes)',
+    paymentType: 'Efectivo / Transferencia',
+    notes: 'Repartidor entrega entre 14:00 y 16:00 hs.',
+    emoji: '🥤',
+    status: 'active',
+    lastPaymentDate: null
+  },
+  {
+    id: 'prov_3',
+    name: 'Massalin / Cigarrillos CABA',
+    category: 'Cigarrillos & Tabacos',
+    contact: 'Diego Fernández',
+    phone: '+54 9 11 6789-2345',
+    visitDay: 3,
+    visitDayName: 'Miércoles',
+    estimatedAmount: 120000,
+    frequency: 'Semanal (Miércoles)',
+    paymentType: 'Efectivo estricto',
+    notes: 'Pagar con billetes de alta denominación si es posible.',
+    emoji: '🚬',
+    status: 'active',
+    lastPaymentDate: null
+  },
+  {
+    id: 'prov_4',
+    name: 'Lácteos La Serenísima',
+    category: 'Lácteos, Yogures & Postres',
+    contact: 'Roberto Paz',
+    phone: '+54 9 11 7890-3456',
+    visitDay: 4,
+    visitDayName: 'Jueves',
+    estimatedAmount: 38000,
+    frequency: 'Semanal (Jueves)',
+    paymentType: 'Efectivo contra entrega',
+    notes: 'Controlar vencimientos y cadena de frío al recibir.',
+    emoji: '🥛',
+    status: 'active',
+    lastPaymentDate: null
+  },
+  {
+    id: 'prov_5',
+    name: 'Distribuidora Cervecería Quilmes',
+    category: 'Cervezas, Vinos & Bebidas',
+    contact: 'Luciano Rossi',
+    phone: '+54 9 11 8901-4567',
+    visitDay: 5,
+    visitDayName: 'Viernes',
+    estimatedAmount: 65000,
+    frequency: 'Semanal (Viernes)',
+    paymentType: 'Efectivo / MercadoPago',
+    notes: 'Tener envases vacíos listos para recambio.',
+    emoji: '🍺',
+    status: 'active',
+    lastPaymentDate: null
+  },
+  {
+    id: 'prov_6',
+    name: 'Distribuidora Snacks Lays / PepsiCo',
+    category: 'Papas, Snacks & Galletitas',
+    contact: 'Gustavo Morales',
+    phone: '+54 9 11 9012-5678',
+    visitDay: 6,
+    visitDayName: 'Sábado',
+    estimatedAmount: 32000,
+    frequency: 'Semanal (Sábado)',
+    paymentType: 'Efectivo contra entrega',
+    notes: 'Llega temprano (8:30 a 10:00 hs).',
+    emoji: '🍟',
+    status: 'active',
+    lastPaymentDate: null
+  }
+];
+const DAYS_OF_WEEK = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+const DAYS_OF_WEEK_SHORT = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+// ============================================
+// CÁLCULO DE CAJA & ARQUEO DE TURNO
+// ============================================
+function calculateShiftBalance(shift) {
+  if (!shift) {
+    return {
+      isOpen: false,
+      initialCash: 0,
+      initialMercadoPago: 0,
+      salesCash: 0,
+      salesMercadoPago: 0,
+      salesCards: 0,
+      totalSales: 0,
+      supplierPayoutsCash: 0,
+      supplierPayoutsMP: 0,
+      totalPayouts: 0,
+      manualCashIn: 0,
+      manualCashOut: 0,
+      manualMPIn: 0,
+      manualMPOut: 0,
+      expectedCash: 0,
+      expectedMercadoPago: 0,
+      expectedTotal: 0
+    };
+  }
+  const allSales = DB.getSales();
+  const shiftStart = new Date(shift.openedAt).getTime();
+  const shiftEnd = shift.closedAt ? new Date(shift.closedAt).getTime() : Date.now() + 86400000;
+  // Filtrar ventas del turno
+  const shiftSales = allSales.filter(s => {
+    const t = new Date(s.date || s.fecha).getTime();
+    return t >= shiftStart && t <= shiftEnd;
+  });
+  let salesCash = 0;
+  let salesMercadoPago = 0;
+  let salesCards = 0;
+  shiftSales.forEach(s => {
+    const pm = (s.paymentMethod || '').toLowerCase();
+    const tot = s.total || 0;
+    if (pm === 'efectivo') salesCash += tot;
+    else if (pm === 'mercadopago') salesMercadoPago += tot;
+    else salesCards += tot;
+  });
+  const totalSales = salesCash + salesMercadoPago + salesCards;
+  // Pagos a proveedores
+  const supplierPayments = DB.getSupplierPayments(shift.id);
+  let supplierPayoutsCash = 0;
+  let supplierPayoutsMP = 0;
+  supplierPayments.forEach(p => {
+    const m = (p.paymentMethod || p.method || 'efectivo').toLowerCase();
+    const amt = p.amount || 0;
+    if (m === 'efectivo') supplierPayoutsCash += amt;
+    else if (m === 'mercadopago') supplierPayoutsMP += amt;
+  });
+  // Movimientos manuales
+  const movements = DB.getCashMovements(shift.id);
+  let manualCashIn = 0;
+  let manualCashOut = 0;
+  let manualMPIn = 0;
+  let manualMPOut = 0;
+  movements.forEach(m => {
+    const method = (m.method || 'efectivo').toLowerCase();
+    const amt = m.amount || 0;
+    if (m.type === 'in') {
+      if (method === 'efectivo') manualCashIn += amt;
+      else manualMPIn += amt;
+    } else if (m.type === 'out') {
+      if (method === 'efectivo') manualCashOut += amt;
+      else manualMPOut += amt;
+    }
+  });
+  const initialCash = Number(shift.initialCash) || 0;
+  const initialMercadoPago = Number(shift.initialMercadoPago) || 0;
+  const expectedCash = Math.max(0, initialCash + salesCash - supplierPayoutsCash + manualCashIn - manualCashOut);
+  const expectedMercadoPago = Math.max(0, initialMercadoPago + salesMercadoPago - supplierPayoutsMP + manualMPIn - manualMPOut);
+  const expectedTotal = expectedCash + expectedMercadoPago;
+  const totalPayouts = supplierPayoutsCash + supplierPayoutsMP;
+  return {
+    isOpen: shift.status === 'open',
+    shiftId: shift.id,
+    cashier: shift.cashier || 'Cajero',
+    openedAt: shift.openedAt,
+    initialCash,
+    initialMercadoPago,
+    salesCash,
+    salesMercadoPago,
+    salesCards,
+    totalSales,
+    supplierPayoutsCash,
+    supplierPayoutsMP,
+    totalPayouts,
+    manualCashIn,
+    manualCashOut,
+    manualMPIn,
+    manualMPOut,
+    expectedCash,
+    expectedMercadoPago,
+    expectedTotal,
+    salesCount: shiftSales.length
+  };
+}
+function updateCashHeaderBadge() {
+  const currentShift = DB.getCurrentShift();
+  const headerBadge = document.getElementById('header-cash-badge');
+  if (!headerBadge) return;
+  if (currentShift && currentShift.status === 'open') {
+    const balance = calculateShiftBalance(currentShift);
+    headerBadge.className = 'badge badge-green';
+    headerBadge.style.cursor = 'pointer';
+    headerBadge.innerHTML = `🟢 Caja: ${formatCurrency(balance.expectedCash)} (MP: ${formatCurrency(balance.expectedMercadoPago)})`;
+    headerBadge.title = 'Hacé clic para ver el control de caja';
+  } else {
+    headerBadge.className = 'badge badge-red';
+    headerBadge.style.cursor = 'pointer';
+    headerBadge.innerHTML = '🔴 Caja Cerrada';
+    headerBadge.title = 'Hacé clic para abrir un turno de caja';
+  }
+}
+function getDayInfo() {
+  const todayIdx = new Date().getDay();
+  const tomorrowIdx = (todayIdx + 1) % 7;
+  return {
+    todayIdx,
+    todayName: DAYS_OF_WEEK[todayIdx],
+    tomorrowIdx,
+    tomorrowName: DAYS_OF_WEEK[tomorrowIdx]
+  };
+}
+function getSuppliersForDay(dayIdx) {
+  const suppliers = DB.getSuppliers();
+    const cashHistory = DB.getCashHistory();
+    const currentShift = DB.getCurrentShift();
+  return suppliers.filter(s => s.status !== 'inactive' && Number(s.visitDay) === dayIdx);
+}
 const DEMO_PRODUCTS = [
   { id:'p01', name:'Alfajor Milka',            category:'Alfajores',   costPrice:280,  salePrice:550,  stock:24, minStock:10, emoji:'🍫', image:'images/p01.png', barcode:'' },
   { id:'p02', name:'Alfajor Oreo',             category:'Alfajores',   costPrice:260,  salePrice:500,  stock:18, minStock:10, emoji:'🍪', image:'images/p02.png', barcode:'' },
@@ -2070,9 +2605,50 @@ const DB = {
   SALES_KEY:       'ventas',
   SETTINGS_KEY:    'kiosco_settings',
   INIT_KEY:        'kiosco_initialized_v2',
+  SUPPLIERS_KEY:   'kiosco_suppliers',
+  CASH_REGISTER_KEY:    'kiosco_cash_register',
+  CASH_HISTORY_KEY:     'kiosco_cash_history',
+  CASH_MOVEMENTS_KEY:   'kiosco_cash_movements',
+  SUPPLIER_PAYMENTS_KEY:'kiosco_supplier_payments',
+  getCurrentShift() {
+    try { return JSON.parse(localStorage.getItem(this.CASH_REGISTER_KEY)) || null; } catch { return null; }
+  },
+  saveCurrentShift(s) {
+    if (s) localStorage.setItem(this.CASH_REGISTER_KEY, JSON.stringify(s));
+    else localStorage.removeItem(this.CASH_REGISTER_KEY);
+  },
+  getCashHistory() {
+    try { return JSON.parse(localStorage.getItem(this.CASH_HISTORY_KEY)) || []; } catch { return []; }
+  },
+  saveCashHistory(h) {
+    localStorage.setItem(this.CASH_HISTORY_KEY, JSON.stringify(h));
+  },
+  getCashMovements(shiftId) {
+    try {
+      const all = JSON.parse(localStorage.getItem(this.CASH_MOVEMENTS_KEY)) || [];
+      return shiftId ? all.filter(m => m.shiftId === shiftId) : all;
+    } catch { return []; }
+  },
+  addCashMovement(m) {
+    const all = this.getCashMovements();
+    all.push({ id: generateId(), date: new Date().toISOString(), ...m });
+    localStorage.setItem(this.CASH_MOVEMENTS_KEY, JSON.stringify(all));
+  },
+  getSupplierPayments(shiftId) {
+    try {
+      const all = JSON.parse(localStorage.getItem(this.SUPPLIER_PAYMENTS_KEY)) || [];
+      return shiftId ? all.filter(p => p.shiftId === shiftId) : all;
+    } catch { return []; }
+  },
+  addSupplierPayment(p) {
+    const all = this.getSupplierPayments();
+    all.push({ id: generateId(), date: new Date().toISOString(), ...p });
+    localStorage.setItem(this.SUPPLIER_PAYMENTS_KEY, JSON.stringify(all));
+  },
   isInitialized() { return localStorage.getItem(this.INIT_KEY) === 'true'; },
   initialize() {
     if (!this.isInitialized()) {
+      this.saveSuppliers(DEMO_SUPPLIERS);
       this.saveProducts(DEMO_PRODUCTS);
       this.saveSales(generateDemoSales());
       this.saveSettings({ storeName:'Drugstore 24 hs', address:'Av. Corrientes 1234, CABA' });
@@ -2100,8 +2676,14 @@ const DB = {
       // Sync sales to 'ventas' key
       const currentSales = this.getSales();
       this.saveSales(currentSales);
+      if (!this.getSuppliers() || this.getSuppliers().length === 0) { this.saveSuppliers(DEMO_SUPPLIERS); }
     }
   },
+  getSuppliers()          { try { return JSON.parse(localStorage.getItem(this.SUPPLIERS_KEY)) || []; } catch { return []; } },
+  saveSuppliers(s)        { localStorage.setItem(this.SUPPLIERS_KEY, JSON.stringify(s)); },
+  addSupplier(s)          { const arr = this.getSuppliers(); arr.push(s); this.saveSuppliers(arr); },
+  updateSupplier(id, data){ const arr = this.getSuppliers(); const i = arr.findIndex(p=>p.id===id); if(i!==-1){ arr[i]={...arr[i],...data}; this.saveSuppliers(arr); } },
+  deleteSupplier(id)      { this.saveSuppliers(this.getSuppliers().filter(p=>p.id!==id)); },
   getProducts()          { try { return JSON.parse(localStorage.getItem(this.PRODUCTS_KEY)) || []; } catch { return []; } },
   saveProducts(p)        { localStorage.setItem(this.PRODUCTS_KEY, JSON.stringify(p)); },
   addProduct(p)          { const arr = this.getProducts(); arr.push(p); this.saveProducts(arr); },
@@ -2134,6 +2716,11 @@ const State = {
   charts:           {},
   lastSale:         null,
   chineseMode:      false,
+  suppliersSearch:   '',
+  suppliersDayFilter:'all',
+  editingSupplierId: null,
+  deletingSupplierId:null,
+  selectedSupplierEmoji: '🚚',
 };
 // ============================================
 // UTILS
@@ -2195,6 +2782,7 @@ function updateClock() {
 // NAVIGATION
 // ============================================
 function navigate(section) {
+  updateCashHeaderBadge();
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('section-' + section).classList.add('active');
@@ -2205,6 +2793,8 @@ function navigate(section) {
     pos:       '🛒 Registrar Venta',
     reports:   '📊 Reportes',
     manual:    '📖 Manual de Uso',
+    suppliers: '🚚 Proveedores & Compras',
+    cash:      '💰 Control de Caja & Turnos',
   };
   document.getElementById('header-title').textContent = titles[section] || section;
   State.section = section;
@@ -2214,6 +2804,8 @@ function navigate(section) {
     case 'pos':       renderPOS();       break;
     case 'reports':   renderReports();   break;
     case 'manual':    renderManual();    break;
+    case 'suppliers': renderSuppliers(); break;
+    case 'cash':      renderCash();      break;
   }
   // Aplicar traducción (español o chino según State.chineseMode)
   const sectionEl = document.getElementById(`section-${section}`);
@@ -2226,8 +2818,16 @@ function navigate(section) {
 // DASHBOARD
 // ============================================
 function renderDashboard() {
-  const sales    = DB.getSales();
-  const products = DB.getProducts();
+  const currentShift = DB.getCurrentShift();
+  const shiftBal = calculateShiftBalance(currentShift);
+  // === ALERTAS DE PROVEEDORES Y CAJA ===
+  const dayInfo = getDayInfo();
+  const tomorrowSuppliers = getSuppliersForDay(dayInfo.tomorrowIdx);
+  const todaySuppliers = getSuppliersForDay(dayInfo.todayIdx);
+  const tomorrowSuppliersTotal = tomorrowSuppliers.reduce((sum, s) => sum + (Number(s.estimatedAmount) || 0), 0);
+  const todaySuppliersTotal = todaySuppliers.reduce((sum, s) => sum + (Number(s.estimatedAmount) || 0), 0);
+  const sales       = DB.getSales();
+  const products    = DB.getProducts();
   const todaySales  = sales.filter(s => isToday(s.date));
   const todayTotal  = todaySales.reduce((sum, s) => sum + s.total, 0);
   const lowStock    = products.filter(p => p.stock > 0 && p.stock <= p.minStock);
@@ -2246,6 +2846,86 @@ function renderDashboard() {
   todaySales.forEach(s => { pbk[s.paymentMethod] = (pbk[s.paymentMethod]||0) + s.total; });
   const recentSales = sales.slice(0,8);
   document.getElementById('dashboard-content').innerHTML = `
+    
+    <!-- ESTADO DE CAJA Y TURNO EN DASHBOARD -->
+    <div class="card" style="margin-bottom:20px;background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(6,182,212,0.04));border-color:rgba(99,102,241,0.25)">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:32px">💰</div>
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:15px;font-weight:800;color:var(--text-primary)">Control de Caja Actual</span>
+              ${currentShift ? '<span class="badge badge-green">🟢 Turno Abierto</span>' : '<span class="badge badge-red">🔴 Caja Cerrada</span>'}
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">
+              ${currentShift ? `Cajero: <strong>${currentShift.cashier}</strong> · Abierto: ${formatTime(currentShift.openedAt)}` : 'No hay ningún turno abierto en este momento.'}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          ${currentShift ? `
+            <div style="text-align:right">
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:700">Efectivo en Caja</div>
+              <div style="font-size:18px;font-weight:900;color:var(--green-light)">${formatCurrency(shiftBal.expectedCash)}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:700">Mercado Pago</div>
+              <div style="font-size:18px;font-weight:900;color:var(--cyan-light)">${formatCurrency(shiftBal.expectedMercadoPago)}</div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="navigate('cash')">💰 Ver Detalle de Caja</button>
+          ` : `
+            <button class="btn btn-success btn-sm" onclick="openShiftModal()">🟢 Abrir Turno de Caja</button>
+          `}
+        </div>
+      </div>
+    </div>
+    <!-- ALERTA DE CAJA PARA MAÑANA -->
+    ${tomorrowSuppliers.length > 0 ? `
+    <div class="supplier-alert-banner">
+      <div style="font-size:36px;flex-shrink:0">⚠️</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+          <span class="badge badge-amber" style="font-size:11px;padding:3px 10px;font-weight:800">🔔 ALERTA DE CAJA: SEPARAR DINERO PARA MAÑANA</span>
+          <span style="font-size:12px;color:var(--amber-light);font-weight:700">Día de visita: ${dayInfo.tomorrowName}</span>
+        </div>
+        <div style="font-size:16px;font-weight:900;color:var(--text-primary);margin-bottom:4px">
+          Mañana hay que comprarle a: <span style="color:var(--amber-light)">${tomorrowSuppliers.map(s => s.emoji + ' ' + s.name).join(', ')}</span>
+        </div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.5">
+          💵 <strong>Dinero a separar de la caja:</strong> <strong style="color:var(--amber-light);font-size:16px">${formatCurrency(tomorrowSuppliersTotal)}</strong> en efectivo para pagar el pedido.
+          ${tomorrowSuppliers[0]?.notes ? `<span style="margin-left:8px;color:var(--text-muted)">(${tomorrowSuppliers[0].notes})</span>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button class="btn btn-primary btn-sm" onclick="navigate('suppliers')" style="box-shadow:0 2px 10px rgba(245,158,11,0.3)">
+          🚚 Ver Proveedores
+        </button>
+      </div>
+    </div>` : ''}
+    <!-- ALERTA DE VISITA HOY -->
+    ${todaySuppliers.length > 0 ? `
+    <div class="supplier-today-banner">
+      <div style="font-size:36px;flex-shrink:0">🚚</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+          <span class="badge badge-green" style="font-size:11px;padding:3px 10px;font-weight:800">📦 VISITA DE PROVEEDOR HOY</span>
+          <span style="font-size:12px;color:var(--green-light);font-weight:700">Hoy ${dayInfo.todayName}</span>
+        </div>
+        <div style="font-size:16px;font-weight:900;color:var(--text-primary);margin-bottom:4px">
+          Hoy entrega: <span style="color:var(--green-light)">${todaySuppliers.map(s => s.emoji + ' ' + s.name).join(', ')}</span>
+        </div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.5">
+          💰 Monto estimado a pagar: <strong style="color:var(--green-light);font-size:16px">${formatCurrency(todaySuppliersTotal)}</strong>
+          ${todaySuppliers[0]?.contact ? `<span style="margin-left:8px;color:var(--text-muted)">· ${todaySuppliers[0].contact}</span>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        ${todaySuppliers[0]?.phone ? `<a href="https://wa.me/${todaySuppliers[0].phone.replace(/[^0-9]/g,'')}?text=Hola,%20te%20escribo%20del%20kiosco%20por%20el%20pedido%20de%20hoy" target="_blank" class="btn btn-whatsapp btn-sm" style="text-decoration:none">📱 WhatsApp</a>` : ''}
+        <button class="btn btn-success btn-sm" onclick="openRecordSupplierPayment('${todaySuppliers[0].id}')">
+          ✅ Registrar Pago
+        </button>
+      </div>
+    </div>` : ''}
     <div class="kpi-grid">
       <div class="kpi-card purple">
         <div class="kpi-icon">💰</div>
@@ -3082,6 +3762,994 @@ function printTicket() {
   window.print();
 }
 // ============================================
+// PROVEEDORES & COMPRAS (ABM Y ALERTAS)
+// ============================================
+const SUPPLIER_EMOJIS = ['🍬','🥤','🚬','🥛','🍺','🍟','🍫','🍞','🧴','📦','🚚','🏭','🥖','🧊','🧹','🛒'];
+function renderSuppliers() {
+  const suppliers   = DB.getSuppliers();
+  const search      = (State.suppliersSearch || '').toLowerCase();
+  const dayFilter   = State.suppliersDayFilter || 'all';
+  const dayInfo     = getDayInfo();
+  const filtered = suppliers.filter(s => {
+    const ms = !search || s.name.toLowerCase().includes(search) || (s.category && s.category.toLowerCase().includes(search)) || (s.contact && s.contact.toLowerCase().includes(search));
+    const md = dayFilter === 'all' || String(s.visitDay) === String(dayFilter);
+    return ms && md;
+  });
+  const tomorrowSuppliers = getSuppliersForDay(dayInfo.tomorrowIdx);
+  const todaySuppliers    = getSuppliersForDay(dayInfo.todayIdx);
+  const tomorrowTotal     = tomorrowSuppliers.reduce((sum, s) => sum + (Number(s.estimatedAmount) || 0), 0);
+  const todayTotal        = todaySuppliers.reduce((sum, s) => sum + (Number(s.estimatedAmount) || 0), 0);
+  const weeklyEstimatedTotal = suppliers.reduce((sum, s) => sum + (Number(s.estimatedAmount) || 0), 0);
+  // Días de la semana (1 = Lunes a 6 = Sábado)
+  const scheduleDays = [1, 2, 3, 4, 5, 6];
+  document.getElementById('suppliers-content').innerHTML = `
+    <div class="page-header">
+      <div class="page-title">🚚 Proveedores & Cronograma de Compras</div>
+      <div class="search-bar" style="max-width:260px">
+        <input type="text" placeholder="Buscar proveedor…" id="supp-search-inp"
+          value="${State.suppliersSearch||''}"
+          oninput="State.suppliersSearch=this.value;renderSuppliers()">
+      </div>
+      <select class="form-select" style="width:160px" onchange="State.suppliersDayFilter=this.value;renderSuppliers()">
+        <option value="all" ${dayFilter==='all'?'selected':''}>Todos los días</option>
+        <option value="1" ${dayFilter==='1'?'selected':''}>Lunes</option>
+        <option value="2" ${dayFilter==='2'?'selected':''}>Martes</option>
+        <option value="3" ${dayFilter==='3'?'selected':''}>Miércoles</option>
+        <option value="4" ${dayFilter==='4'?'selected':''}>Jueves</option>
+        <option value="5" ${dayFilter==='5'?'selected':''}>Viernes</option>
+        <option value="6" ${dayFilter==='6'?'selected':''}>Sábado</option>
+      </select>
+      <button class="btn btn-primary" onclick="openSupplierModal(null)">➕ Agregar proveedor</button>
+    </div>
+    <!-- ALERTA DINÁMICA DE CAJA DE MAÑANA -->
+    ${tomorrowSuppliers.length > 0 ? `
+    <div class="supplier-alert-banner">
+      <div style="font-size:36px;flex-shrink:0">⚠️</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span class="badge badge-amber" style="font-size:11px;padding:3px 10px;font-weight:800">🔔 SEPARAR DINERO PARA MAÑANA (${dayInfo.tomorrowName.toUpperCase()})</span>
+        </div>
+        <div style="font-size:16px;font-weight:900;color:var(--text-primary);margin-bottom:4px">
+          Mañana visita: <span style="color:var(--amber-light)">${tomorrowSuppliers.map(s => s.emoji + ' ' + s.name).join(', ')}</span>
+        </div>
+        <div style="font-size:13px;color:var(--text-secondary)">
+          💵 <strong>Separar en efectivo de la caja:</strong> <strong style="color:var(--amber-light);font-size:16px">${formatCurrency(tomorrowTotal)}</strong>
+          ${tomorrowSuppliers[0]?.notes ? `<span style="margin-left:8px;color:var(--text-muted)">— ${tomorrowSuppliers[0].notes}</span>` : ''}
+        </div>
+      </div>
+      <div>
+        <span class="badge badge-amber" style="font-size:14px;padding:6px 14px;font-weight:800">${formatCurrency(tomorrowTotal)}</span>
+      </div>
+    </div>` : ''}
+    <!-- KPIS PROVEEDORES -->
+    <div class="kpi-grid" style="margin-bottom:22px">
+      <div class="kpi-card purple">
+        <div class="kpi-icon">🚚</div>
+        <div class="kpi-value purple">${suppliers.length}</div>
+        <div class="kpi-label">Proveedores Activos</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-icon">⚠️</div>
+        <div class="kpi-value amber">${formatCurrency(tomorrowTotal)}</div>
+        <div class="kpi-label">Separar para Mañana</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-icon">📦</div>
+        <div class="kpi-value green">${todaySuppliers.length}</div>
+        <div class="kpi-label">Visitas de Hoy (${dayInfo.todayName})</div>
+      </div>
+      <div class="kpi-card cyan">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-value cyan">${formatCurrency(weeklyEstimatedTotal)}</div>
+        <div class="kpi-label">Presupuesto Semanal</div>
+      </div>
+    </div>
+    <!-- CRONOGRAMA SEMANAL (LUNES A SÁBADO - PROVEEDORES 1 AL 6) -->
+    <div class="card" style="margin-bottom:22px">
+      <div class="chart-title" style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
+        <span>📅 Cronograma Semanal de Visitas y Compras</span>
+        <span style="font-size:11px;color:var(--text-muted);font-weight:500">Organización fija del kiosco</span>
+      </div>
+      <div class="week-schedule-grid">
+        ${scheduleDays.map(dayNum => {
+          const dayName = DAYS_OF_WEEK[dayNum];
+          const isToday = dayNum === dayInfo.todayIdx;
+          const isTomorrow = dayNum === dayInfo.tomorrowIdx;
+          const daySupps = suppliers.filter(s => Number(s.visitDay) === dayNum);
+          const dayTotal = daySupps.reduce((sum, s) => sum + (Number(s.estimatedAmount) || 0), 0);
+          return `
+          <div class="day-schedule-card${isToday ? ' is-today' : isTomorrow ? ' is-tomorrow' : ''}">
+            <div class="day-name-badge">
+              <span>${dayName.toUpperCase()}</span>
+              ${isToday ? '<span class="badge badge-green" style="font-size:9px;padding:1px 6px">HOY</span>' : isTomorrow ? '<span class="badge badge-amber" style="font-size:9px;padding:1px 6px">MAÑANA</span>' : ''}
+            </div>
+            ${daySupps.length === 0 ? `
+              <div style="font-size:11px;color:var(--text-muted);padding:8px 0;text-align:center">Sin proveedores</div>
+            ` : daySupps.map(s => `
+              <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:8px;border:1px solid rgba(255,255,255,0.05)">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+                  <span style="font-size:15px">${s.emoji}</span>
+                  <span style="font-size:11.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-primary)">${s.name}</span>
+                </div>
+                <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.category}</div>
+                <div style="font-size:12px;font-weight:800;color:var(--cyan-light);margin-top:4px">${formatCurrency(s.estimatedAmount)}</div>
+              </div>
+            `).join('')}
+            <div style="margin-top:auto;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;font-size:10.5px">
+              <span style="color:var(--text-muted)">Total:</span>
+              <strong style="color:${isTomorrow ? 'var(--amber-light)' : isToday ? 'var(--green-light)' : 'var(--text-primary)'}">${formatCurrency(dayTotal)}</strong>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    <!-- TABLA DE PROVEEDORES -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:44px">—</th>
+            <th>Proveedor & Contacto</th>
+            <th>Categoría</th>
+            <th>Día & Frecuencia</th>
+            <th>Precio Estimado Compra</th>
+            <th>Forma de Pago / Notas</th>
+            <th>WhatsApp</th>
+            <th style="width:110px">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.length === 0 ? `
+          <tr><td colspan="8">
+            <div class="empty-state">
+              <div class="empty-icon">🚚</div>
+              <div class="empty-text">No se encontraron proveedores</div>
+              <button class="btn btn-primary" onclick="openSupplierModal(null)">➕ Agregar proveedor</button>
+            </div>
+          </td></tr>` : filtered.map(s => {
+            const isToday = Number(s.visitDay) === dayInfo.todayIdx;
+            const isTomorrow = Number(s.visitDay) === dayInfo.tomorrowIdx;
+            const phoneDigits = s.phone ? s.phone.replace(/[^0-9]/g, '') : '';
+            return `
+            <tr>
+              <td style="text-align:center;font-size:24px">${s.emoji || '🚚'}</td>
+              <td>
+                <div style="font-weight:700;font-size:13.5px">${s.name}</div>
+                ${s.contact ? `<div style="font-size:11px;color:var(--text-muted)">👤 ${s.contact}</div>` : ''}
+              </td>
+              <td><span class="badge badge-purple">${s.category || 'Varios'}</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <span class="badge ${isToday ? 'badge-green' : isTomorrow ? 'badge-amber' : 'badge-cyan'}">
+                    ${s.visitDayName || DAYS_OF_WEEK[s.visitDay] || 'Semanal'}
+                  </span>
+                  ${isToday ? '<span class="live-dot"></span>' : ''}
+                </div>
+                <div style="font-size:10.5px;color:var(--text-muted);margin-top:2px">${s.frequency || 'Semanal'}</div>
+              </td>
+              <td>
+                <div style="font-size:14px;font-weight:900;color:var(--cyan-light)">${formatCurrency(s.estimatedAmount || 0)}</div>
+                <div style="font-size:10px;color:var(--text-muted)">Dinero a reservar</div>
+              </td>
+              <td>
+                <div style="font-size:11.5px;color:var(--text-primary)">${s.paymentType || 'Efectivo'}</div>
+                ${s.notes ? `<div style="font-size:10.5px;color:var(--text-muted);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${s.notes}">📝 ${s.notes}</div>` : ''}
+              </td>
+              <td>
+                ${phoneDigits ? `
+                  <a href="https://wa.me/${phoneDigits}?text=Hola%20${encodeURIComponent(s.name)},%20te%20escribo%20del%20kiosco%20para%20consultar%20el%20pedido." target="_blank" class="btn btn-whatsapp btn-sm" style="text-decoration:none">
+                    📱 WhatsApp
+                  </a>` : `<span style="font-size:11px;color:var(--text-muted)">—</span>`}
+              </td>
+              <td>
+                <div style="display:flex;gap:4px">
+                  <button class="btn btn-success btn-icon btn-sm" onclick="openRecordSupplierPayment('${s.id}')" title="Registrar Pago">💵</button>
+                  <button class="btn btn-secondary btn-icon btn-sm" onclick="openSupplierModal('${s.id}')" title="Editar">✏️</button>
+                  <button class="btn btn-danger btn-icon btn-sm" onclick="confirmDeleteSupplier('${s.id}')" title="Eliminar">🗑️</button>
+                </div>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
+      Mostrando ${filtered.length} de ${suppliers.length} proveedores
+    </div>
+  `;
+}
+function openSupplierModal(supplierId) {
+  State.editingSupplierId = supplierId;
+  const isEdit   = supplierId !== null;
+  const supplier = isEdit ? DB.getSuppliers().find(s => s.id === supplierId) : null;
+  State.selectedSupplierEmoji = supplier?.emoji || '🚚';
+  document.getElementById('supplier-modal-title').textContent = isEdit ? '✏️ Editar Proveedor' : '➕ Agregar Proveedor';
+  document.getElementById('supplier-modal-body').innerHTML = `
+    <div class="form-group">
+      <label class="form-label">Ícono del proveedor</label>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        <div id="supp-emoji-display" style="font-size:38px;width:54px;height:54px;background:rgba(255,255,255,0.06);border-radius:12px;display:flex;align-items:center;justify-content:center;border:2px solid var(--border)">${State.selectedSupplierEmoji}</div>
+        <div style="font-size:12px;color:var(--text-muted)">Seleccioná un ícono identificativo</div>
+      </div>
+      <div class="emoji-picker">
+        ${SUPPLIER_EMOJIS.map(e => `<div class="emoji-option${e===State.selectedSupplierEmoji?' selected':''}" onclick="selectSupplierEmoji('${e}')" data-em="${e}">${e}</div>`).join('')}
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nombre del proveedor / Distribuidora *</label>
+      <input type="text" class="form-input" id="supp-name" placeholder="Ej: Distribuidora Arcor" value="${supplier?.name||''}">
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Categoría de productos *</label>
+        <input type="text" class="form-input" id="supp-category" placeholder="Ej: Golosinas & Chocolates" value="${supplier?.category||''}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Día de visita semanal *</label>
+        <select class="form-select" id="supp-day">
+          <option value="1" ${supplier?.visitDay===1?'selected':''}>Lunes (Proveedor 1)</option>
+          <option value="2" ${supplier?.visitDay===2?'selected':''}>Martes (Proveedor 2)</option>
+          <option value="3" ${supplier?.visitDay===3?'selected':''}>Miércoles (Proveedor 3)</option>
+          <option value="4" ${supplier?.visitDay===4?'selected':''}>Jueves (Proveedor 4)</option>
+          <option value="5" ${supplier?.visitDay===5?'selected':''}>Viernes (Proveedor 5)</option>
+          <option value="6" ${supplier?.visitDay===6?'selected':''}>Sábado (Proveedor 6)</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Precio / Monto Estimado de Compra ($) *</label>
+        <input type="number" class="form-input" id="supp-amount" placeholder="45000" min="0" value="${supplier?.estimatedAmount||''}">
+        <div style="font-size:10px;color:var(--text-muted);margin-top:3px">Monto a reservar en caja para este proveedor</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Frecuencia de compra</label>
+        <input type="text" class="form-input" id="supp-freq" placeholder="Semanal (Lunes)" value="${supplier?.frequency||'Semanal'}">
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Nombre del Preventista / Contacto</label>
+        <input type="text" class="form-input" id="supp-contact" placeholder="Ej: Carlos Gómez" value="${supplier?.contact||''}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Teléfono / WhatsApp</label>
+        <input type="text" class="form-input" id="supp-phone" placeholder="+54 9 11 1234-5678" value="${supplier?.phone||''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Forma de pago y notas de entrega</label>
+      <input type="text" class="form-input" id="supp-notes" placeholder="Ej: Efectivo contra entrega. Pasa de 9 a 11 hs." value="${supplier?.notes||''}">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeSupplierModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveSupplier()">
+        ${isEdit ? '💾 Guardar cambios' : '➕ Agregar proveedor'}
+      </button>
+    </div>
+  `;
+  document.getElementById('supplier-modal-overlay').classList.add('active');
+}
+function selectSupplierEmoji(e) {
+  State.selectedSupplierEmoji = e;
+  const d = document.getElementById('supp-emoji-display');
+  if (d) d.textContent = e;
+  document.querySelectorAll('#supplier-modal-body .emoji-option').forEach(el => {
+    el.classList.toggle('selected', el.dataset.em === e);
+  });
+}
+function closeSupplierModal() {
+  document.getElementById('supplier-modal-overlay').classList.remove('active');
+  State.editingSupplierId = null;
+}
+function saveSupplier() {
+  const nameEl    = document.getElementById('supp-name');
+  const catEl     = document.getElementById('supp-category');
+  const dayEl     = document.getElementById('supp-day');
+  const amountEl  = document.getElementById('supp-amount');
+  const freqEl    = document.getElementById('supp-freq');
+  const contactEl = document.getElementById('supp-contact');
+  const phoneEl   = document.getElementById('supp-phone');
+  const notesEl   = document.getElementById('supp-notes');
+  const nameVal   = nameEl?.value.trim();
+  if (!nameVal) { showToast('Ingresá el nombre del proveedor', 'error'); return; }
+  const dayVal    = parseInt(dayEl?.value || '1', 10);
+  const amountVal = parseFloat(amountEl?.value || '0') || 0;
+  const data = {
+    name: nameVal,
+    category: catEl?.value.trim() || 'Varios',
+    visitDay: dayVal,
+    visitDayName: DAYS_OF_WEEK[dayVal] || 'Lunes',
+    estimatedAmount: amountVal,
+    frequency: freqEl?.value.trim() || `Semanal (${DAYS_OF_WEEK[dayVal]})`,
+    contact: contactEl?.value.trim() || '',
+    phone: phoneEl?.value.trim() || '',
+    paymentType: 'Efectivo contra entrega',
+    notes: notesEl?.value.trim() || '',
+    emoji: State.selectedSupplierEmoji || '🚚',
+    status: 'active'
+  };
+  if (State.editingSupplierId) {
+    DB.updateSupplier(State.editingSupplierId, data);
+    showToast('Proveedor actualizado ✔');
+  } else {
+    DB.addSupplier({ id: generateId(), ...data });
+    showToast('Nuevo proveedor guardado ✔');
+  }
+  closeSupplierModal();
+  renderSuppliers();
+  if (State.section === 'dashboard') renderDashboard();
+}
+function confirmDeleteSupplier(id) {
+  State.deletingSupplierId = id;
+  const s = DB.getSuppliers().find(x => x.id === id);
+  const nameEl = document.getElementById('delete-supplier-name');
+  if (nameEl) nameEl.textContent = s?.name || 'este proveedor';
+  document.getElementById('delete-supplier-modal-overlay').classList.add('active');
+}
+function closeDeleteSupplierModal() {
+  document.getElementById('delete-supplier-modal-overlay').classList.remove('active');
+  State.deletingSupplierId = null;
+}
+function executeDeleteSupplier() {
+  if (!State.deletingSupplierId) return;
+  DB.deleteSupplier(State.deletingSupplierId);
+  showToast('Proveedor eliminado', 'info');
+  closeDeleteSupplierModal();
+  renderSuppliers();
+  if (State.section === 'dashboard') renderDashboard();
+}
+function openRecordSupplierPayment(supplierId) {
+  const supplier = DB.getSuppliers().find(s => s.id === supplierId);
+  if (!supplier) return;
+  document.getElementById('supplier-payment-modal-body').innerHTML = `
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:42px;margin-bottom:6px">${supplier.emoji}</div>
+      <div style="font-size:17px;font-weight:800;color:var(--text-primary)">${supplier.name}</div>
+      <div style="font-size:12px;color:var(--text-muted)">${supplier.category} · Visita: ${supplier.visitDayName}</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Monto pagado a proveedor ($)</label>
+      <input type="number" class="form-input" id="spay-amount" value="${supplier.estimatedAmount||''}" placeholder="0" style="font-size:18px;font-weight:800;color:var(--green)">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Medio de pago</label>
+      <select class="form-select" id="spay-method">
+        <option value="efectivo">💵 Efectivo de caja</option>
+        <option value="transferencia">📱 Transferencia bancaria</option>
+        <option value="mercadopago">📱 MercadoPago</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Detalle / N° Comprobante o Factura</label>
+      <input type="text" class="form-input" id="spay-note" placeholder="Opcional: Remito N°...">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeSupplierPaymentModal()">Cancelar</button>
+      <button class="btn btn-success" onclick="confirmSupplierPayment('${supplier.id}')">
+        ✅ Confirmar Pago Realizado
+      </button>
+    </div>
+  `;
+  document.getElementById('supplier-payment-modal-overlay','open-shift-modal-overlay','close-shift-modal-overlay','cash-movement-modal-overlay','shift-receipt-modal-overlay').classList.add('active');
+}
+function closeSupplierPaymentModal() {
+  document.getElementById('supplier-payment-modal-overlay').classList.remove('active');
+}
+function confirmSupplierPayment(supplierId) {
+  const amount = parseFloat(document.getElementById('spay-amount')?.value || '0') || 0;
+  const method = document.getElementById('spay-method')?.value || 'efectivo';
+  const note   = document.getElementById('spay-note')?.value || '';
+  const supplier = DB.getSuppliers().find(s => s.id === supplierId);
+  if (!supplier) return;
+  const currentShift = DB.getCurrentShift();
+  // Guardar en log de proveedores y de caja
+  DB.addSupplierPayment({
+    shiftId: currentShift ? currentShift.id : null,
+    supplierId: supplier.id,
+    supplierName: supplier.name,
+    amount: amount,
+    paymentMethod: method,
+    note: note
+  });
+  DB.updateSupplier(supplierId, { lastPaymentDate: new Date().toISOString(), lastPaidAmount: amount });
+  showToast(`¡Pago de ${formatCurrency(amount)} a ${supplier.name} registrado con éxito (Descontado de ${method === 'efectivo' ? 'Efectivo en Caja' : 'Mercado Pago'})! 💵`);
+  closeSupplierPaymentModal();
+  renderSuppliers();
+  updateCashHeaderBadge();
+  if (State.section === 'dashboard') renderDashboard();
+  if (State.section === 'cash') renderCash();
+}
+// ============================================
+// CONTROL DE CAJA & ARQUEO DE TURNOS
+// ============================================
+function renderCash() {
+  const currentShift = DB.getCurrentShift();
+  const balance = calculateShiftBalance(currentShift);
+  const history = DB.getCashHistory();
+  const movements = currentShift ? DB.getCashMovements(currentShift.id) : [];
+  const supplierPayments = currentShift ? DB.getSupplierPayments(currentShift.id) : [];
+  updateCashHeaderBadge();
+  if (!currentShift) {
+    // === VISTA DE CAJA CERRADA ===
+    document.getElementById('cash-content').innerHTML = `
+      <div class="page-header">
+        <div class="page-title">💰 Control de Caja & Turnos</div>
+        <button class="btn btn-success" onclick="openShiftModal()">🟢 Abrir Turno de Caja</button>
+      </div>
+      <div class="shift-card-closed">
+        <div style="font-size:54px;margin-bottom:12px">🔒</div>
+        <h2 style="font-size:20px;font-weight:900;color:var(--text-primary);margin-bottom:6px">La Caja se encuentra Cerrada</h2>
+        <p style="font-size:13.5px;color:var(--text-secondary);max-width:460px;margin:0 auto 20px;line-height:1.6">
+          Para comenzar a registrar ventas con arqueo, controlar el dinero inicial en Efectivo y Mercado Pago, y descontar pagos a proveedores, abrí un nuevo turno.
+        </p>
+        <button class="btn btn-success" style="font-size:14px;padding:12px 28px" onclick="openShiftModal()">
+          🟢 Iniciar / Abrir Turno de Caja
+        </button>
+      </div>
+      <!-- HISTORIAL DE TURNOS CERRADOS -->
+      <div class="card" style="margin-top:24px">
+        <div class="chart-title" style="margin-bottom:14px">📜 Historial de Turnos y Arqueos Anteriores</div>
+        ${renderCashHistoryTable(history)}
+      </div>
+    `;
+    return;
+  }
+  // === VISTA DE TURNO ACTIVO / ABIERTO ===
+  document.getElementById('cash-content').innerHTML = `
+    <div class="page-header">
+      <div class="page-title">💰 Control de Caja & Turno Activo</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-secondary btn-sm" onclick="openCashMovementModal()">💵 Ingreso / Retiro</button>
+        <button class="btn btn-secondary btn-sm" onclick="navigate('suppliers')">🚚 Pagar a Proveedor</button>
+        <button class="btn btn-danger btn-sm" onclick="openCloseShiftModal()">🔒 Cerrar Turno / Arqueo</button>
+      </div>
+    </div>
+    <!-- TARJETA DEL TURNO ACTIVO -->
+    <div class="shift-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:28px">🟢</span>
+          <div>
+            <div style="font-size:16px;font-weight:900;color:var(--text-primary)">
+              Turno en curso: <span style="color:var(--purple-light)">${currentShift.cashier || 'Cajero'}</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted)">
+              Apertura: <strong>${formatDateTime(currentShift.openedAt)}</strong> · ${balance.salesCount} ventas registradas
+            </div>
+          </div>
+        </div>
+        <span class="badge badge-green" style="font-size:12px;padding:5px 12px">🟢 TURNO ACTIVO</span>
+      </div>
+      <!-- 4 KPIS PRINCIPALES DE LA CAJA -->
+      <div class="cash-balance-grid">
+        <div class="cash-balance-box">
+          <div class="cb-title">💵 Efectivo Actual en Caja</div>
+          <div class="cb-amount" style="color:var(--green-light)">${formatCurrency(balance.expectedCash)}</div>
+          <div style="font-size:10.5px;color:var(--text-muted)">Dinero físico en gaveta / sobre</div>
+        </div>
+        <div class="cash-balance-box">
+          <div class="cb-title">📱 Mercado Pago Actual</div>
+          <div class="cb-amount" style="color:var(--cyan-light)">${formatCurrency(balance.expectedMercadoPago)}</div>
+          <div style="font-size:10.5px;color:var(--text-muted)">Saldo en cuenta digital</div>
+        </div>
+        <div class="cash-balance-box">
+          <div class="cb-title">💰 Total en Caja & Cuenta</div>
+          <div class="cb-amount" style="color:var(--purple-light)">${formatCurrency(balance.expectedTotal)}</div>
+          <div style="font-size:10.5px;color:var(--text-muted)">Efectivo + Mercado Pago</div>
+        </div>
+        <div class="cash-balance-box">
+          <div class="cb-title">🚚 Pagado a Proveedores</div>
+          <div class="cb-amount" style="color:var(--amber-light)">${formatCurrency(balance.totalPayouts)}</div>
+          <div style="font-size:10.5px;color:var(--text-muted)">Descontado del turno actual</div>
+        </div>
+      </div>
+      <!-- TABLA DETALLADA DE ARQUEO EN VIVO -->
+      <div style="margin-top:16px;background:rgba(0,0,0,0.15);border-radius:var(--radius-md);border:1px solid var(--border);padding:14px">
+        <div style="font-size:12px;font-weight:800;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px">
+          📊 Desglose Matemático del Turno en Vivo
+        </div>
+        <table class="cash-summary-table">
+          <thead>
+            <tr>
+              <th>Concepto</th>
+              <th style="text-align:right">Efectivo ($)</th>
+              <th style="text-align:right">Mercado Pago ($)</th>
+              <th style="text-align:right">Total ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1. Fondo Inicial con el que arrancó el turno</strong></td>
+              <td style="text-align:right;color:var(--text-secondary)">${formatCurrency(balance.initialCash)}</td>
+              <td style="text-align:right;color:var(--text-secondary)">${formatCurrency(balance.initialMercadoPago)}</td>
+              <td style="text-align:right;font-weight:700">${formatCurrency(balance.initialCash + balance.initialMercadoPago)}</td>
+            </tr>
+            <tr>
+              <td><span style="color:var(--green-light)">➕ <strong>Ventas cobradas durante el turno</strong></span></td>
+              <td style="text-align:right;color:var(--green-light)">+${formatCurrency(balance.salesCash)}</td>
+              <td style="text-align:right;color:var(--green-light)">+${formatCurrency(balance.salesMercadoPago)}</td>
+              <td style="text-align:right;font-weight:700;color:var(--green-light)">+${formatCurrency(balance.salesCash + balance.salesMercadoPago)}</td>
+            </tr>
+            <tr>
+              <td><span style="color:var(--red-light)">➖ <strong>Pagos a Proveedores realizados</strong></span></td>
+              <td style="text-align:right;color:var(--red-light)">-${formatCurrency(balance.supplierPayoutsCash)}</td>
+              <td style="text-align:right;color:var(--red-light)">-${formatCurrency(balance.supplierPayoutsMP)}</td>
+              <td style="text-align:right;font-weight:700;color:var(--red-light)">-${formatCurrency(balance.totalPayouts)}</td>
+            </tr>
+            ${(balance.manualCashIn > 0 || balance.manualCashOut > 0 || balance.manualMPIn > 0 || balance.manualMPOut > 0) ? `
+            <tr>
+              <td><span>🔄 <strong>Movimientos manuales (Ingresos / Retiros)</strong></span></td>
+              <td style="text-align:right">${formatCurrency(balance.manualCashIn - balance.manualCashOut)}</td>
+              <td style="text-align:right">${formatCurrency(balance.manualMPIn - balance.manualMPOut)}</td>
+              <td style="text-align:right;font-weight:700">${formatCurrency((balance.manualCashIn - balance.manualCashOut) + (balance.manualMPIn - balance.manualMPOut))}</td>
+            </tr>` : ''}
+            <tr class="highlight-row">
+              <td><strong style="font-size:14px;color:var(--text-primary)">🏁 SALDO TEÓRICO ESPERADO EN CAJA</strong></td>
+              <td style="text-align:right;font-size:15px;font-weight:900;color:var(--green-light)">${formatCurrency(balance.expectedCash)}</td>
+              <td style="text-align:right;font-size:15px;font-weight:900;color:var(--cyan-light)">${formatCurrency(balance.expectedMercadoPago)}</td>
+              <td style="text-align:right;font-size:16px;font-weight:900;color:var(--purple-light)">${formatCurrency(balance.expectedTotal)}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px">
+          <button class="btn btn-primary" style="font-size:13.5px;padding:10px 20px" onclick="openCloseShiftModal()">
+            🔒 Finalizar Turno y Realizar Arqueo de Caja
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- MOVIMIENTOS RECIENTES DEL TURNO (PROVEEDORES Y RETIROS) -->
+    <div class="card" style="margin-bottom:24px">
+      <div class="chart-title" style="margin-bottom:14px">🚚 Pagos a Proveedores y Movimientos del Turno</div>
+      ${renderShiftMovementsTable(supplierPayments, movements)}
+    </div>
+    <!-- HISTORIAL DE TURNOS ANTERIORES -->
+    <div class="card">
+      <div class="chart-title" style="margin-bottom:14px">📜 Historial de Turnos Cerrados Anteriores</div>
+      ${renderCashHistoryTable(history)}
+    </div>
+  `;
+}
+function renderShiftMovementsTable(supplierPayments, movements) {
+  const allEvents = [];
+  supplierPayments.forEach(p => {
+    allEvents.push({
+      date: p.date,
+      type: 'supplier',
+      title: `Pago a Proveedor: ${p.supplierName}`,
+      method: p.paymentMethod || 'efectivo',
+      amount: -Math.abs(p.amount),
+      note: p.note || 'Mercadería'
+    });
+  });
+  movements.forEach(m => {
+    allEvents.push({
+      date: m.date,
+      type: m.type,
+      title: m.type === 'in' ? 'Ingreso de dinero' : 'Retiro de dinero / Gasto',
+      method: m.method || 'efectivo',
+      amount: m.type === 'in' ? Math.abs(m.amount) : -Math.abs(m.amount),
+      note: m.reason || ''
+    });
+  });
+  allEvents.sort((a,b) => new Date(b.date) - new Date(a.date));
+  if (allEvents.length === 0) {
+    return `<div class="empty-state" style="padding:16px"><div class="empty-icon" style="font-size:28px">📝</div><div class="empty-text">Aún no hay pagos a proveedores ni retiros manuales en este turno.</div></div>`;
+  }
+  return `
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Hora</th>
+            <th>Concepto / Detalle</th>
+            <th>Medio</th>
+            <th>Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${allEvents.map(e => `
+            <tr>
+              <td style="font-size:12px;color:var(--text-muted)">${formatTime(e.date)}</td>
+              <td>
+                <div style="font-weight:700;font-size:13px">${e.title}</div>
+                ${e.note ? `<div style="font-size:11px;color:var(--text-muted)">${e.note}</div>` : ''}
+              </td>
+              <td>
+                <span class="badge ${e.method === 'efectivo' ? 'badge-green' : 'badge-cyan'}">
+                  ${e.method === 'efectivo' ? '💵 Efectivo' : '📱 Mercado Pago'}
+                </span>
+              </td>
+              <td style="font-size:14px;font-weight:900;color:${e.amount < 0 ? 'var(--red-light)' : 'var(--green-light)'}">
+                ${e.amount < 0 ? '-' : '+'}${formatCurrency(Math.abs(e.amount))}
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+function renderCashHistoryTable(history) {
+  if (!history || history.length === 0) {
+    return `<div class="empty-state" style="padding:20px"><div class="empty-icon" style="font-size:32px">📁</div><div class="empty-text">No hay turnos cerrados registrados todavía.</div></div>`;
+  }
+  return `
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha & Turno</th>
+            <th>Fondo Inicial</th>
+            <th>Ventas Totales</th>
+            <th>Proveedores</th>
+            <th>Efectivo Dejado</th>
+            <th>Mercado Pago</th>
+            <th>Diferencia Arqueo</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${history.slice().reverse().map(h => {
+            const diffCash = h.differenceCash || 0;
+            const diffMP = h.differenceMercadoPago || 0;
+            const totalDiff = diffCash + diffMP;
+            const diffCol = totalDiff === 0 ? 'var(--green-light)' : totalDiff > 0 ? 'var(--cyan-light)' : 'var(--red-light)';
+            const diffLabel = totalDiff === 0 ? 'Exacto ✔' : totalDiff > 0 ? `+${formatCurrency(totalDiff)} (Sobrante)` : `${formatCurrency(totalDiff)} (Faltante)`;
+            return `
+            <tr>
+              <td>
+                <div style="font-weight:700;font-size:13px">${h.cashier || 'Turno'}</div>
+                <div style="font-size:11px;color:var(--text-muted)">${formatDate(h.openedAt)} (${formatTime(h.openedAt)} a ${formatTime(h.closedAt)})</div>
+              </td>
+              <td style="color:var(--text-secondary)">${formatCurrency((h.initialCash || 0) + (h.initialMercadoPago || 0))}</td>
+              <td style="color:var(--green-light);font-weight:700">${formatCurrency(h.totalSales || 0)}</td>
+              <td style="color:var(--amber-light)">-${formatCurrency(h.totalPayouts || 0)}</td>
+              <td style="font-weight:800;color:var(--green-light)">${formatCurrency(h.leftForNextCash || h.countedCash || 0)}</td>
+              <td style="font-weight:800;color:var(--cyan-light)">${formatCurrency(h.leftForNextMP || h.countedMercadoPago || 0)}</td>
+              <td>
+                <span class="badge" style="background:rgba(255,255,255,0.05);color:${diffCol};border:1px solid ${diffCol}">
+                  ${diffLabel}
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-secondary btn-sm" onclick='showShiftReceiptModal(${JSON.stringify(h)})'>
+                  🧾 Ver Ticket
+                </button>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+// === MODALES DE CAJA ===
+function openShiftModal() {
+  document.getElementById('open-shift-modal-body').innerHTML = `
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="font-size:44px;margin-bottom:6px">🟢</div>
+      <h3 style="font-size:17px;font-weight:900;color:var(--text-primary)">Iniciar Turno de Caja</h3>
+      <p style="font-size:12px;color:var(--text-muted)">Ingresá el dinero inicial con el que arranca este turno</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nombre del Cajero / Turno *</label>
+      <input type="text" class="form-input" id="shift-cashier" placeholder="Ej: Turno Mañana (Juan)" value="Turno ${new Date().getHours() < 14 ? 'Mañana' : 'Tarde'}">
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">💵 Efectivo Inicial en Gaveta ($) *</label>
+        <input type="number" class="form-input" id="shift-init-cash" placeholder="10000" min="0" value="15000" style="font-size:16px;font-weight:800;color:var(--green-light)">
+        <div style="font-size:10.5px;color:var(--text-muted);margin-top:2px">Cambio / fondo de caja en billetes y monedas</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">📱 Saldo Inicial Mercado Pago ($)</label>
+        <input type="number" class="form-input" id="shift-init-mp" placeholder="0" min="0" value="0" style="font-size:16px;font-weight:800;color:var(--cyan-light)">
+        <div style="font-size:10.5px;color:var(--text-muted);margin-top:2px">Dinero en cuenta digital al arrancar</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas de apertura (Opcional)</label>
+      <input type="text" class="form-input" id="shift-notes" placeholder="Ej: Faltan monedas de 50...">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeOpenShiftModal()">Cancelar</button>
+      <button class="btn btn-success" style="font-size:14px;padding:11px 24px" onclick="saveOpenShift()">
+        🟢 Confirmar y Abrir Turno
+      </button>
+    </div>
+  `;
+  document.getElementById('open-shift-modal-overlay').classList.add('active');
+}
+function closeOpenShiftModal() {
+  document.getElementById('open-shift-modal-overlay').classList.remove('active');
+}
+function saveOpenShift() {
+  const cashier = document.getElementById('shift-cashier')?.value.trim() || 'Turno General';
+  const initCash = parseFloat(document.getElementById('shift-init-cash')?.value || '0') || 0;
+  const initMP = parseFloat(document.getElementById('shift-init-mp')?.value || '0') || 0;
+  const notes = document.getElementById('shift-notes')?.value.trim() || '';
+  const newShift = {
+    id: generateId(),
+    cashier,
+    initialCash: initCash,
+    initialMercadoPago: initMP,
+    notes,
+    openedAt: new Date().toISOString(),
+    status: 'open'
+  };
+  DB.saveCurrentShift(newShift);
+  showToast(`¡Turno de ${cashier} abierto con éxito! (Fondo: ${formatCurrency(initCash)}) 🟢`);
+  closeOpenShiftModal();
+  updateCashHeaderBadge();
+  if (State.section === 'cash') renderCash();
+  if (State.section === 'dashboard') renderDashboard();
+}
+function openCloseShiftModal() {
+  const currentShift = DB.getCurrentShift();
+  if (!currentShift) return;
+  const balance = calculateShiftBalance(currentShift);
+  document.getElementById('close-shift-modal-body').innerHTML = `
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:40px;margin-bottom:4px">🔒</div>
+      <h3 style="font-size:18px;font-weight:900;color:var(--text-primary)">Cierre y Arqueo de Turno</h3>
+      <p style="font-size:12px;color:var(--text-muted)">Turno: <strong>${currentShift.cashier}</strong> · Abierto ${formatTime(currentShift.openedAt)}</p>
+    </div>
+    <!-- SALDOS ESPERADOS POR SISTEMA -->
+    <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px">Saldos Teóricos Esperados por Sistema:</div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+        <span>💵 Efectivo esperado en gaveta:</span>
+        <strong style="color:var(--green-light);font-size:15px">${formatCurrency(balance.expectedCash)}</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px">
+        <span>📱 Mercado Pago esperado:</span>
+        <strong style="color:var(--cyan-light);font-size:15px">${formatCurrency(balance.expectedMercadoPago)}</strong>
+      </div>
+    </div>
+    <!-- CONTEO REAL EN MANO -->
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">💵 Conteo Real Efectivo en Gaveta ($) *</label>
+        <input type="number" class="form-input" id="close-counted-cash" value="${balance.expectedCash}" placeholder="0" min="0"
+          style="font-size:16px;font-weight:800;color:var(--green-light)"
+          oninput="updateCloseShiftDifferences(${balance.expectedCash}, ${balance.expectedMercadoPago})">
+      </div>
+      <div class="form-group">
+        <label class="form-label">📱 Saldo Real Mercado Pago ($) *</label>
+        <input type="number" class="form-input" id="close-counted-mp" value="${balance.expectedMercadoPago}" placeholder="0" min="0"
+          style="font-size:16px;font-weight:800;color:var(--cyan-light)"
+          oninput="updateCloseShiftDifferences(${balance.expectedCash}, ${balance.expectedMercadoPago})">
+      </div>
+    </div>
+    <!-- DIFERENCIA EN VIVO -->
+    <div id="close-diff-display" style="margin-bottom:14px"></div>
+    <!-- DINERO QUE DEJA PARA EL SIGUIENTE TURNO -->
+    <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:8px">
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px">
+        ¿Cuánto dinero se deja en caja para el próximo turno?
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">💵 Efectivo que queda en gaveta ($)</label>
+          <input type="number" class="form-input" id="close-left-cash" value="${balance.initialCash}" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">📱 Mercado Pago que queda en cuenta ($)</label>
+          <input type="number" class="form-input" id="close-left-mp" value="${balance.expectedMercadoPago}" placeholder="0" min="0">
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observaciones / Notas de cierre</label>
+      <input type="text" class="form-input" id="close-notes" placeholder="Ej: Se retiró ganancia del día...">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeCloseShiftModal()">Cancelar</button>
+      <button class="btn btn-primary" style="font-size:14px;padding:11px 24px" onclick="saveCloseShift()">
+        🔒 Confirmar y Cerrar Turno
+      </button>
+    </div>
+  `;
+  document.getElementById('close-shift-modal-overlay').classList.add('active');
+  updateCloseShiftDifferences(balance.expectedCash, balance.expectedMercadoPago);
+}
+function updateCloseShiftDifferences(expectedCash, expectedMP) {
+  const countedCash = parseFloat(document.getElementById('close-counted-cash')?.value || '0') || 0;
+  const countedMP   = parseFloat(document.getElementById('close-counted-mp')?.value || '0') || 0;
+  const diffCash = countedCash - expectedCash;
+  const diffMP   = countedMP - expectedMP;
+  const totalDiff = diffCash + diffMP;
+  const el = document.getElementById('close-diff-display');
+  if (!el) return;
+  const color = totalDiff === 0 ? 'var(--green-light)' : totalDiff > 0 ? 'var(--cyan-light)' : 'var(--red-light)';
+  const label = totalDiff === 0 ? 'Caja balanceada exacta (Sin diferencias) ✔' : totalDiff > 0 ? `Sobrante de Caja: +${formatCurrency(totalDiff)}` : `Faltante de Caja: ${formatCurrency(totalDiff)}`;
+  el.innerHTML = `
+    <div style="background:rgba(255,255,255,0.04);border:1px solid ${color};border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:12px;color:var(--text-secondary)">Resultado del Arqueo:</span>
+      <strong style="color:${color};font-size:14px">${label}</strong>
+    </div>
+  `;
+}
+function closeCloseShiftModal() {
+  document.getElementById('close-shift-modal-overlay').classList.remove('active');
+}
+function saveCloseShift() {
+  const currentShift = DB.getCurrentShift();
+  if (!currentShift) return;
+  const balance = calculateShiftBalance(currentShift);
+  const countedCash = parseFloat(document.getElementById('close-counted-cash')?.value || '0') || 0;
+  const countedMP   = parseFloat(document.getElementById('close-counted-mp')?.value || '0') || 0;
+  const leftCash    = parseFloat(document.getElementById('close-left-cash')?.value || '0') || 0;
+  const leftMP      = parseFloat(document.getElementById('close-left-mp')?.value || '0') || 0;
+  const notes       = document.getElementById('close-notes')?.value.trim() || '';
+  const closedRecord = {
+    ...currentShift,
+    closedAt: new Date().toISOString(),
+    status: 'closed',
+    salesCash: balance.salesCash,
+    salesMercadoPago: balance.salesMercadoPago,
+    salesCards: balance.salesCards,
+    totalSales: balance.totalSales,
+    salesCount: balance.salesCount,
+    supplierPayoutsCash: balance.supplierPayoutsCash,
+    supplierPayoutsMP: balance.supplierPayoutsMP,
+    totalPayouts: balance.totalPayouts,
+    expectedCash: balance.expectedCash,
+    expectedMercadoPago: balance.expectedMercadoPago,
+    expectedTotal: balance.expectedTotal,
+    countedCash: countedCash,
+    countedMercadoPago: countedMP,
+    differenceCash: countedCash - balance.expectedCash,
+    differenceMercadoPago: countedMP - balance.expectedMercadoPago,
+    leftForNextCash: leftCash,
+    leftForNextMP: leftMP,
+    closeNotes: notes
+  };
+  const history = DB.getCashHistory();
+  history.push(closedRecord);
+  DB.saveCashHistory(history);
+  DB.saveCurrentShift(null);
+  showToast('¡Turno de caja cerrado y arqueo registrado exitosamente! 🔒');
+  closeCloseShiftModal();
+  updateCashHeaderBadge();
+  showShiftReceiptModal(closedRecord);
+  if (State.section === 'cash') renderCash();
+  if (State.section === 'dashboard') renderDashboard();
+}
+function openCashMovementModal() {
+  document.getElementById('cash-movement-modal-body').innerHTML = `
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:38px;margin-bottom:4px">💵</div>
+      <h3 style="font-size:17px;font-weight:900;color:var(--text-primary)">Ingreso o Retiro Manual de Caja</h3>
+      <p style="font-size:12px;color:var(--text-muted)">Registrá retiros para cambio, pagos menores o aportes</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tipo de Movimiento *</label>
+      <select class="form-select" id="cmov-type">
+        <option value="out">➖ Retiro de dinero / Gasto</option>
+        <option value="in">➕ Ingreso / Aporte de dinero</option>
+      </select>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Monto ($) *</label>
+        <input type="number" class="form-input" id="cmov-amount" placeholder="0" min="0" style="font-size:16px;font-weight:800;color:var(--green-light)">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Medio de Pago *</label>
+        <select class="form-select" id="cmov-method">
+          <option value="efectivo">💵 Efectivo</option>
+          <option value="mercadopago">📱 Mercado Pago</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Motivo / Concepto *</label>
+      <input type="text" class="form-input" id="cmov-reason" placeholder="Ej: Compra de bolsas, retiro de efectivo...">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeCashMovementModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCashMovement()">
+        💾 Guardar Movimiento
+      </button>
+    </div>
+  `;
+  document.getElementById('cash-movement-modal-overlay').classList.add('active');
+}
+function closeCashMovementModal() {
+  document.getElementById('cash-movement-modal-overlay').classList.remove('active');
+}
+function saveCashMovement() {
+  const currentShift = DB.getCurrentShift();
+  const type   = document.getElementById('cmov-type')?.value || 'out';
+  const amount = parseFloat(document.getElementById('cmov-amount')?.value || '0') || 0;
+  const method = document.getElementById('cmov-method')?.value || 'efectivo';
+  const reason = document.getElementById('cmov-reason')?.value.trim() || 'Movimiento de caja';
+  if (amount <= 0) { showToast('Ingresá un monto mayor a 0', 'error'); return; }
+  DB.addCashMovement({
+    shiftId: currentShift ? currentShift.id : null,
+    type,
+    amount,
+    method,
+    reason
+  });
+  showToast(`Movimiento registrado: ${type === 'in' ? '+' : '-'}${formatCurrency(amount)} en ${method}`);
+  closeCashMovementModal();
+  updateCashHeaderBadge();
+  if (State.section === 'cash') renderCash();
+  if (State.section === 'dashboard') renderDashboard();
+}
+function showShiftReceiptModal(h) {
+  if (!h) return;
+  const settings = DB.getSettings();
+  const diffCash = h.differenceCash || 0;
+  const diffMP   = h.differenceMercadoPago || 0;
+  const totalDiff = diffCash + diffMP;
+  document.getElementById('shift-receipt-modal-body').innerHTML = `
+    <div style="font-family:'Courier New',monospace;font-size:12px;color:var(--text-primary);padding:10px 0;line-height:1.5">
+      <div style="text-align:center;padding-bottom:8px;border-bottom:1px dashed var(--border);margin-bottom:10px">
+        <div style="font-size:16px;font-weight:900">${settings.storeName || 'Drugstore 24 hs'}</div>
+        <div style="font-size:13px;font-weight:800;color:var(--purple-light)">COMPROBANTE DE CIERRE DE CAJA</div>
+        <div style="font-size:11px;color:var(--text-muted)">Turno: ${h.cashier || 'General'}</div>
+      </div>
+      <div style="margin-bottom:10px;font-size:11.5px">
+        <div>Apertura: ${formatDateTime(h.openedAt)}</div>
+        <div>Cierre:   ${formatDateTime(h.closedAt)}</div>
+      </div>
+      <div style="border-top:1px dashed var(--border);border-bottom:1px dashed var(--border);padding:8px 0;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between">
+          <span>Fondo Inicial Efectivo:</span><span>${formatCurrency(h.initialCash || 0)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span>Fondo Inicial Mercado Pago:</span><span>${formatCurrency(h.initialMercadoPago || 0)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;color:var(--green-light);font-weight:700">
+          <span>(+) Ventas Efectivo:</span><span>+${formatCurrency(h.salesCash || 0)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;color:var(--green-light);font-weight:700">
+          <span>(+) Ventas Mercado Pago:</span><span>+${formatCurrency(h.salesMercadoPago || 0)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;color:var(--red-light);font-weight:700">
+          <span>(-) Pagos a Proveedores:</span><span>-${formatCurrency(h.totalPayouts || 0)}</span>
+        </div>
+      </div>
+      <div style="margin-bottom:10px;font-size:13px">
+        <div style="display:flex;justify-content:space-between">
+          <span>Efectivo Contado:</span><strong style="color:var(--green-light)">${formatCurrency(h.countedCash || 0)}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span>Mercado Pago en Cuenta:</span><strong style="color:var(--cyan-light)">${formatCurrency(h.countedMercadoPago || 0)}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:14px;font-weight:900">
+          <span>Diferencia Arqueo:</span>
+          <span style="color:${totalDiff === 0 ? 'var(--green-light)' : totalDiff > 0 ? 'var(--cyan-light)' : 'var(--red-light)'}">
+            ${totalDiff === 0 ? '$0 (Exacto)' : (totalDiff > 0 ? '+' : '') + formatCurrency(totalDiff)}
+          </span>
+        </div>
+      </div>
+      <div style="border-top:1px dashed var(--border);padding-top:8px;font-size:12px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between">
+          <span>💵 Queda para próximo turno (Efectivo):</span><strong>${formatCurrency(h.leftForNextCash || 0)}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span>📱 Queda en Mercado Pago:</span><strong>${formatCurrency(h.leftForNextMP || 0)}</strong>
+        </div>
+      </div>
+      ${h.closeNotes ? `<div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">Notas: ${h.closeNotes}</div>` : ''}
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary" style="flex:1" onclick="window.print()">🖨️ Imprimir</button>
+        <button class="btn btn-primary" style="flex:1" onclick="closeShiftReceiptModal()">Cerrar</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('shift-receipt-modal-overlay').classList.add('active');
+}
+function closeShiftReceiptModal() {
+  document.getElementById('shift-receipt-modal-overlay').classList.remove('active');
+}
+// ============================================
 // REPORTS
 // ============================================
 function renderReports() {
@@ -3724,6 +5392,10 @@ function exportData() {
       exportDate: new Date().toISOString(),
       productsCount: products.length,
       salesCount: sales.length,
+      suppliersCount: suppliers.length,
+      cashHistory: cashHistory,
+      currentShift: currentShift,
+      suppliers: suppliers,
       products: products,
       sales: sales,
       settings: settings
@@ -3771,6 +5443,15 @@ function handleImportFile(event) {
         restoredProducts = data.products.length;
       }
       // Restaurar Ventas
+      if (Array.isArray(data.cashHistory)) {
+        DB.saveCashHistory(data.cashHistory);
+      }
+      if (data.currentShift) {
+        DB.saveCurrentShift(data.currentShift);
+      }
+      if (Array.isArray(data.suppliers)) {
+        DB.saveSuppliers(data.suppliers);
+      }
       if (Array.isArray(data.sales)) {
         DB.saveSales(data.sales);
         restoredSales = data.sales.length;
@@ -3782,6 +5463,7 @@ function handleImportFile(event) {
       showToast(`¡Respaldo restaurado! (${restoredProducts} prods, ${restoredSales} ventas) 🚀`);
       // Refrescar vistas en tiempo real
       if (State.section === 'products') renderProducts();
+      if (State.section === 'suppliers') renderSuppliers();
       if (State.section === 'pos') renderPOS();
       if (State.section === 'reports') renderReports();
       if (State.section === 'dashboard') renderDashboard();
@@ -3912,9 +5594,10 @@ function init() {
   const _s = DB.getSettings();
   if (_s.storeName !== 'Drugstore 24 hs') DB.saveSettings({ ..._s, storeName:'Drugstore 24 hs' });
   updateClock();
+  updateCashHeaderBadge();
   setInterval(updateClock, 1000);
   // Modal close on overlay click
-  ['product-modal-overlay','delete-modal-overlay','payment-modal-overlay','sale-complete-modal-overlay','ai-chat-modal-overlay','contact-creator-modal-overlay'].forEach(id => {
+  ['product-modal-overlay','delete-modal-overlay','supplier-modal-overlay','delete-supplier-modal-overlay','supplier-payment-modal-overlay','payment-modal-overlay','sale-complete-modal-overlay','ai-chat-modal-overlay','contact-creator-modal-overlay'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('click', function(e) {
       if (e.target === this) {
@@ -3924,6 +5607,13 @@ function init() {
         else if (id==='sale-complete-modal-overlay')  closeSaleComplete();
         else if (id==='ai-chat-modal-overlay')        closeAiChatModal();
         else if (id==='contact-creator-modal-overlay') closeContactCreatorModal();
+        else if (id==='supplier-modal-overlay') closeSupplierModal();
+        else if (id==='delete-supplier-modal-overlay') closeDeleteSupplierModal();
+        else if (id==='supplier-payment-modal-overlay') closeSupplierPaymentModal();
+        else if (id==='open-shift-modal-overlay') closeOpenShiftModal();
+        else if (id==='close-shift-modal-overlay') closeCloseShiftModal();
+        else if (id==='cash-movement-modal-overlay') closeCashMovementModal();
+        else if (id==='shift-receipt-modal-overlay') closeShiftReceiptModal();
       }
     });
   });
@@ -3947,3 +5637,4 @@ document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
+
